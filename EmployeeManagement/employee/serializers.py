@@ -1,8 +1,6 @@
 from rest_framework import serializers
 from .models import *
 
-
-
 class AddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = Address
@@ -42,4 +40,3 @@ class EmployeeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Employee
         fields = ['name','email','age','gender','phoneNo','addressDetails','workExperience','qualifications','projects','photo']
-

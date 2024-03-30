@@ -58,7 +58,7 @@ class CreateEmployee(APIView):
                 return Response({"message": "Employee created successfully", "regid": employee_instance.regid, "success": True}, status=status.HTTP_201_CREATED)
             else:
                 # Return response with validation errors
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"message": "Invalid body request", "success": False}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             # Return error response if any exception occurs
             return Response({"message": f"Employee creation failed due to exception: {str(e)}", "success": False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
