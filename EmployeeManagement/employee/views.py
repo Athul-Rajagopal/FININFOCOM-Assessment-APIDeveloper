@@ -4,6 +4,8 @@ from rest_framework.views import APIView
 from .models import Employee
 from .serializers import EmployeeSerializer, AddressSerializer, WorkExperienceSerializer, QualificationSerializer, ProjectSerializer
 
+
+# creating a new employee instance
 class CreateEmployee(APIView):
     def post(self, request):
         try:
@@ -62,3 +64,24 @@ class CreateEmployee(APIView):
         except Exception as e:
             # Return error response if any exception occurs
             return Response({"message": f"Employee creation failed due to exception: {str(e)}", "success": False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+# Retriving employee information
+class RetrieveEmployee(APIView):
+    def get(self, request, regid=None):
+        try:
+            if regid:
+                # Retrieve employee by regid if provided
+                employee = Employee.objects.get(regid=regid)
+                serializer = EmployeeSerializer(employee)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            else:
+                # Retrieve all employees
+                employees = Employee.objects.all()
+                serializer = EmployeeSerializer(employees, many=True)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+        except Employee.DoesNotExist:
+            return Response({"message": "Employee not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"message": f"Error retrieving employee information: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
