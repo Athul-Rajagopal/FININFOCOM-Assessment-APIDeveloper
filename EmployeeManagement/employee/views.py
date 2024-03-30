@@ -17,7 +17,7 @@ class CreateEmployee(APIView):
 
                 # Check for duplicate email
                 if Employee.objects.filter(email=request.data.get('email', '')).exists():
-                    return Response({"message": "Employee already exists"}, status=status.HTTP_200_OK)
+                    return Response({"message": "Employee creation failed due to duplicate email", "success": False}, status=status.HTTP_200_OK)
                 
                 # Handle photo field
                 photo_data = request.data.get('photo')
@@ -63,7 +63,7 @@ class CreateEmployee(APIView):
                 return Response({"message": "Invalid body request", "success": False}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             # Return error response if any exception occurs
-            return Response({"message": f"Employee creation failed due to exception: {str(e)}", "success": False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({"message": "Employee creation failed", "success": False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 
@@ -80,9 +80,9 @@ class RetrieveEmployee(APIView):
                 # Retrieve all employees
                 employees = Employee.objects.all()
                 serializer = EmployeeSerializer(employees, many=True)
-                return Response(serializer.data, status=status.HTTP_200_OK)
+                return Response({"employees": serializer.data, "message": "employee details found", "success": True,}, status=status.HTTP_200_OK)
         except Employee.DoesNotExist:
-            return Response({"message": "Employee not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"message": "Employee not found", "employees": [], "success": False}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({"message": f"Error retrieving employee information: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
@@ -99,4 +99,26 @@ class DeleteEmployee(APIView):
         except Employee.DoesNotExist:
             return Response({"message": "Employee not found", "success": False}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
-            return Response({"message": f"Failed to delete employee: {str(e)}", "regid": regid}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({"message": "Employee deletion failed", "success": False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        
+
+# Updating employee details
+class UpdateEmployee(generics.UpdateAPIView):
+    queryset = Employee.objects.all()
+    serializer_class = EmployeeSerializer
+    lookup_field = 'regid'
+
+    def put(self, request, *args, **kwargs):
+        try:
+            instance = self.get_object()
+            serializer = self.get_serializer(instance, data=request.data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_update(serializer)
+            return Response({"message": "Employee details updated successfully", "regid": instance.regid, "success": True}, status=status.HTTP_200_OK)
+        
+        except Employee.DoesNotExist:
+            return Response({"message": "Employee not found for this regid", "success": False}, status=status.HTTP_404_NOT_FOUND)
+        
+        except Exception as e:
+            return Response({"message": "Employee details updation failed", "success": False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
