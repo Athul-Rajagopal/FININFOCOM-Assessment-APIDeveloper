@@ -1,4 +1,4 @@
-from rest_framework import status
+from rest_framework import status, generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import Employee
@@ -85,3 +85,18 @@ class RetrieveEmployee(APIView):
             return Response({"message": "Employee not found"}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({"message": f"Error retrieving employee information: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        
+# Deleting an employee
+class DeleteEmployee(APIView):
+    def delete(self, request, regid):
+        try:
+            # Check if the employee with the given regid exists
+            employee = Employee.objects.get(regid=regid)
+            # Delete the employee
+            employee.delete()
+            return Response({"message": "Employee deleted successfully", 'success': True}, status=status.HTTP_200_OK)
+        except Employee.DoesNotExist:
+            return Response({"message": "Employee not found", "success": False}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"message": f"Failed to delete employee: {str(e)}", "regid": regid}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
