@@ -6,7 +6,7 @@ from .serializers import EmployeeSerializer, AddressSerializer, WorkExperienceSe
 
 
 # creating a new employee instance
-class CreateEmployee(APIView):
+class ManageEmployee(APIView):
     def post(self, request):
         try:
             # Deserialize employee data
@@ -63,12 +63,10 @@ class CreateEmployee(APIView):
                 return Response({"message": "Invalid body request", "success": False}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             # Return error response if any exception occurs
-            return Response({"message": "Employee creation failed", "success": False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({"message": f"Employee creation failed {e}", "success": False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
-
-# Retriving employee information
-class RetrieveEmployee(APIView):
+    
+    # Retriving employee information
     def get(self, request, regid=None):
         try:
             if regid:
@@ -87,8 +85,7 @@ class RetrieveEmployee(APIView):
             return Response({"message": f"Error retrieving employee information: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
         
-# Deleting an employee
-class DeleteEmployee(APIView):
+    # Deleting an employee    
     def delete(self, request, regid):
         try:
             # Check if the employee with the given regid exists
@@ -100,7 +97,7 @@ class DeleteEmployee(APIView):
             return Response({"message": "Employee not found", "success": False}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({"message": "Employee deletion failed", "success": False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
+             
         
 
 # Updating employee details
